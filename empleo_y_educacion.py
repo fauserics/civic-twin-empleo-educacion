@@ -49,3 +49,26 @@ st.plotly_chart(fig_profesiones, use_container_width=True)
 # Footer
 st.markdown("---")
 st.caption("Civic Twin © 2025 | Datos reales provenientes del Ministerio de Trabajo, Educación, INDEC y CESSI.")
+
+# Sección 3: Comparación entre oferta educativa y demanda laboral
+st.subheader("📚 Brecha entre Oferta Educativa y Demanda Laboral en Tecnología")
+
+# Cargar nuevo dataset
+df_oferta_vs_demanda = pd.read_csv('data/oferta_vs_demanda_tecnologica.csv')
+
+# Crear gráfico de barras agrupadas
+fig_brecha = px.bar(
+    df_oferta_vs_demanda.melt(id_vars='Especialidad', 
+                               value_vars=['Egresados_anuales', 'Puestos_demandados'],
+                               var_name='Tipo', value_name='Cantidad'),
+    x='Especialidad',
+    y='Cantidad',
+    color='Tipo',
+    barmode='group',
+    labels={'Cantidad': 'Cantidad de personas', 'Especialidad': 'Especialidad tecnológica'},
+    title='Comparación de Egresados vs Puestos Demandados por Especialidad'
+)
+
+st.plotly_chart(fig_brecha, use_container_width=True)
+
+
