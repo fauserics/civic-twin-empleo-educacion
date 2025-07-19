@@ -111,4 +111,36 @@ fig_educacion = px.pie(
 )
 st.plotly_chart(fig_educacion, use_container_width=True)
 
+st.subheader("🤖 Impacto de la Inteligencia Artificial y Automatización en Roles Tecnológicos")
+
+# Cargar dataset
+df_ia = pd.read_csv('impacto_ia_roles_tecnologicos.csv')
+
+# Gráfico de dispersión: Exposición vs Complementariedad
+fig_ia = px.scatter(
+    df_ia,
+    x='Exposicion_IA',
+    y='Complementariedad_IA',
+    size='Riesgo_desplazamiento',
+    color='Rol_tecnologico',
+    hover_name='Rol_tecnologico',
+    size_max=60,
+    title='Mapa de Exposición y Complementariedad con IA por Rol Tecnológico',
+    labels={
+        'Exposicion_IA': 'Exposición a la IA (riesgo de automatización)',
+        'Complementariedad_IA': 'Complementariedad con IA (potencial de colaboración)'
+    }
+)
+
+st.plotly_chart(fig_ia, use_container_width=True)
+
+# Panel interpretativo
+st.markdown("""
+Este gráfico muestra cómo distintos roles tecnológicos se ven afectados por la inteligencia artificial:
+
+- 🟥 **Mayor riesgo**: roles con alta exposición y baja complementariedad (arriba a la izquierda).
+- 🟩 **Mayor oportunidad**: roles con alta complementariedad y exposición media (abajo a la derecha).
+
+El tamaño del círculo representa el **riesgo combinado de desplazamiento** por IA.
+""")
 
