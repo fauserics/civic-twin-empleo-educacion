@@ -107,6 +107,8 @@ fig_educacion = px.pie(
     df_educacion,
     names='Nivel_educativo',
     values='Porcentaje',
-    titl
+    title='Nivel Educativo de los Trabajadores del Sector Tecnológico'
+)
+st.plotly_chart(fig_educacion, use_container_width=True)
 
 
