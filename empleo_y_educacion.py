@@ -72,3 +72,41 @@ fig_brecha = px.bar(
 st.plotly_chart(fig_brecha, use_container_width=True)
 
 
+st.subheader("👥 Diversidad e Inclusión en el Sector Tecnológico")
+
+# Gráfico 1: Participación por género en distintos roles
+df_genero = pd.read_csv('participacion_genero_tecnologia.csv')
+
+fig_genero = px.bar(
+    df_genero.melt(id_vars='Categoria',
+                   var_name='Tipo', value_name='Porcentaje'),
+    x='Categoria',
+    y='Porcentaje',
+    color='Tipo',
+    barmode='group',
+    title='Participación por Género en Roles Tecnológicos'
+)
+st.plotly_chart(fig_genero, use_container_width=True)
+
+# Gráfico 2: Edad promedio por tipo de rol
+df_edad = pd.read_csv('edad_promedio_roles_tecnologicos.csv')
+
+fig_edad = px.bar(
+    df_edad,
+    x='Rol',
+    y='Edad_promedio',
+    title='Edad Promedio por Nivel de Seniority en Tecnología',
+    labels={'Edad_promedio': 'Edad promedio (años)'}
+)
+st.plotly_chart(fig_edad, use_container_width=True)
+
+# Gráfico 3: Nivel educativo de los trabajadores tecnológicos
+df_educacion = pd.read_csv('nivel_educativo_trabajadores_tecnologia.csv')
+
+fig_educacion = px.pie(
+    df_educacion,
+    names='Nivel_educativo',
+    values='Porcentaje',
+    titl
+
+
