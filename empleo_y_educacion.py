@@ -11,8 +11,8 @@ st.title("📊 Civic Twin: Empleo, Educación y Futuro del Trabajo Tecnológico 
 # Carga de datos
 @st.cache_data
 def cargar_datos():
-    df_empleo = pd.read_csv('empleo_tecnologico_por_provincia.csv')
-    df_profesiones = pd.read_csv('demanda_profesiones_tecnologicas.csv')
+    df_empleo = pd.read_csv('data/empleo_tecnologico_por_provincia.csv')
+    df_profesiones = pd.read_csv('data/demanda_profesiones_tecnologicas.csv')
     return df_empleo, df_profesiones
 
 df_empleo, df_profesiones = cargar_datos()
