@@ -54,7 +54,7 @@ st.caption("Civic Twin © 2025 | Datos reales provenientes del Ministerio de Tra
 st.subheader("📚 Brecha entre Oferta Educativa y Demanda Laboral en Tecnología")
 
 # Cargar nuevo dataset
-df_oferta_vs_demanda = pd.read_csv('data/oferta_vs_demanda_tecnologica.csv')
+df_oferta_vs_demanda = pd.read_csv('oferta_vs_demanda_tecnologica.csv')
 
 # Crear gráfico de barras agrupadas
 fig_brecha = px.bar(
