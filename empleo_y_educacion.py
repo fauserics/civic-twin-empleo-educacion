@@ -81,13 +81,15 @@ datos = cargar_datos()
 # ─── Tablero con pestañas ──────────────────────────────────────────────
 tabs = st.tabs(["Empleo por Provincia","Profesiones Demandadas","Oferta vs Demanda","Diversidad","Impacto IA"])
 
-# Empleo por Provincia\with tabs[0]:
-fig = px.bar(
+# Empleo por Provincia
+with tabs[0]:
+    fig = px.bar(
         datos['empleo'], x='Provincia', y='Empleos_tecnologicos',
         labels={'Empleos_tecnologicos':'Empleos (%)'},
         color='Empleos_tecnologicos', color_continuous_scale='Blues'
     )
-st.plotly_chart(fig, use_container_width=True, height=400)
+    st.plotly_chart(fig, use_container_width=True, height=380)
+    st.caption("Fuente: Ministerio de Trabajo, INDEC, CESSI")
 
 # Profesiones Demandadas
 with tabs[1]:
@@ -96,7 +98,8 @@ with tabs[1]:
         labels={'Porcentaje_demandado':'Demanda (%)'},
         color='Porcentaje_demandado', color_continuous_scale='Blues'
     )
-    st.plotly_chart(fig, use_container_width=True, height=400)
+    st.plotly_chart(fig, use_container_width=True, height=380)
+    st.caption("Fuente: Portales laborales y CESSI")
 
 # Oferta vs Demanda
 with tabs[2]:
@@ -105,7 +108,8 @@ with tabs[2]:
         df, x='Especialidad', y='Cantidad', color='Tipo', barmode='group',
         color_discrete_sequence=px.colors.sequential.Blues
     )
-    st.plotly_chart(fig, use_container_width=True, height=400)
+    st.plotly_chart(fig, use_container_width=True, height=380)
+    st.caption("Fuente: Ministerio de Educación, Observatorios académicos")
 
 # Diversidad
 with tabs[3]:
@@ -113,19 +117,25 @@ with tabs[3]:
     with sub[0]:
         df_g = datos['genero'].melt(id_vars='Categoria', var_name='Tipo', value_name='Porcentaje')
         fig = px.bar(df_g, x='Categoria', y='Porcentaje', color='Tipo', barmode='group', color_discrete_sequence=px.colors.sequential.Blues)
-        st.plotly_chart(fig, use_container_width=True, height=400)
+        st.plotly_chart(fig, use_container_width=True, height=380)
+        st.caption("Fuente: Chicas en Tecnología, CESSI")
     with sub[1]:
         fig = px.bar(datos['edad'], x='Rol', y='Edad_promedio', labels={'Edad_promedio':'Edad (años)'}, color_discrete_sequence=px.colors.sequential.Blues)
-        st.plotly_chart(fig, use_container_width=True, height=400)
+        st.plotly_chart(fig, use_container_width=True, height=380)
+        st.caption("Fuente: Observatorio de Empleo Tecnológico")
     with sub[2]:
         fig = px.pie(datos['educacion'], names='Nivel_educativo', values='Porcentaje', hole=0.3, color_discrete_sequence=px.colors.sequential.Blues)
-        st.plotly_chart(fig, use_container_width=True, height=400)
+        st.plotly_chart(fig, use_container_width=True, height=380)
+        st.caption("Fuente: INDEC, Ministerio de Educación")
 
-# Impacto IA\with tabs[4]:
+# Impacto IA
+with tabs[4]:
     fig = px.scatter(
         datos['ia'], x='Exposicion_IA', y='Complementariedad_IA', size='Riesgo_desplazamiento',
         color='Rol_tecnologico', size_max=50, color_discrete_sequence=px.colors.sequential.Blues,
         labels={'Exposicion_IA':'Exposición IA','Complementariedad_IA':'Complementariedad'}
     )
-    st.plotly_chart(fig, use_container_width=True, height=400)
+    st.plotly_chart(fig, use_container_width=True, height=380)
+    st.caption("Fuente: Ministerio de Trabajo, OCDE, Banco Mundial")
     st.markdown("**Alta exposición + baja complementariedad = riesgo**; **alta complementariedad = oportunidad**")
+```
