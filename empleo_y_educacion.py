@@ -10,32 +10,30 @@ st.set_page_config(
     menu_items={"Get help": None, "Report a bug": None, "About": None}
 )
 
-# ─── Ocultar elementos por defecto y aplicar estilo ─────────────────────
-st.markdown(
-    """
-    <style>
-    /* Fullscreen sin scroll */
-    .css-18e3th9 {padding-top: 0rem; padding-bottom: 0rem;}  /* elimina padding main */
-    .css-1d391kg {padding: 0;} /* padding lateral */
-    .css-1v3fvcr {margin: 0;} /* titulo */
-    .css-8cff0g {padding: 0;} /* sidebar */
-    footer {visibility: visible; position: relative;}
-    header {margin-bottom: 0px;}
-    </style>
-    """, unsafe_allow_html=True
-)
+# ─── CSS y Header de Civic Twin Café ─────────────────────────────────
+st.markdown("""
+<style>
+/* Ocultar menú y footer de Streamlit */
+#MainMenu {visibility: hidden;} 
+footer {visibility: hidden;}
+header {visibility: hidden;}
+/* Ajustar márgenes y scroll */
+body, .block-container {padding: 0; margin: 0;}
+</style>
+""", unsafe_allow_html=True)
 
-# ─── Header de Civic Twin Café ─────────────────────────────────────────
-st.markdown(
-    """
-    <div style='display:flex; align-items:center; background-color:#003366; padding:10px;'>
-        <img src='https://your-civic-twin-logo.svg' style='height:40px; margin-right:10px;'>
-        <h2 style='color:white; margin:0;'>Civic Twin™ Dashboard</h2>
-    </div>
-    """, unsafe_allow_html=True
-)
+# Banner con logo de Civic Twin™
+st.markdown("""
+<div style='display: flex; align-items: center; background-color: #f0f2f6; padding: 10px;'>
+  <img src='https://path-to-your-logo.svg' alt='Civic Twin™' style='height:40px; margin-right:10px;'>
+  <h2 style='margin: 0;'>Civic Twin™ - Empleo y Educación Tecnológica</h2>
+</div>
+""", unsafe_allow_html=True)
 
-# ─── Cargar datos ──────────────────────────────────────────────────────
+# Paleta de color azul
+BLUE_SCALE = px.colors.sequential.Blues
+
+# Cargar datos
 @st.cache_data
 def cargar_datos():
     return {
@@ -50,10 +48,7 @@ def cargar_datos():
 
 datos = cargar_datos()
 
-# Paleta de color uniforme (azul Civic Twin)
-BLUE_SCALE = px.colors.sequential.Blues
-
-# ─── Pestañas principales ─────────────────────────────────────────────
+# Pestañas principales
 tabs = st.tabs([
     "📍 Empleo por Provincia",
     "💼 Profesiones Demandadas",
@@ -62,70 +57,82 @@ tabs = st.tabs([
     "🤖 Impacto IA"
 ])
 
-# ─── 1) Empleo por Provincia ─────────────────────────────────────────
+# 1) Empleo por Provincia
+def mostrar_empleo():
+    fig = px.bar(
+        datos['empleo'], x='Provincia', y='Empleos_tecnologicos',
+        labels={'Empleos_tecnologicos': 'Empleos (%)'},
+        color='Empleos_tecnologicos', color_continuous_scale=BLUE_SCALE
+    )
+    st.plotly_chart(fig, use_container_width=True, height=420)
+    st.caption("Fuente: Ministerio de Trabajo, Educación, INDEC y CESSI")
+
 with tabs[0]:
-    fig = px.bar(
-        datos['empleo'],
-        x='Provincia', y='Empleos_tecnologicos',
-        labels={'Empleos_tecnologicos':'Empleos (%)'},
-        color='Empleos_tecnologicos',
-        color_continuous_scale=BLUE_SCALE
-    )
-    st.plotly_chart(fig, use_container_width=True, height=300)
+    mostrar_empleo()
 
-# ─── 2) Profesiones más Demandadas ────────────────────────────────────
+# 2) Profesiones más Demandadas
+def mostrar_profesiones():
+    fig = px.bar(
+        datos['profesiones'], x='Porcentaje_demandado', y='Profesion',
+        orientation='h', labels={'Porcentaje_demandado': 'Demanda (%)'},
+        color='Porcentaje_demandado', color_continuous_scale=BLUE_SCALE
+    )
+    st.plotly_chart(fig, use_container_width=True, height=420)
+    st.caption("Fuente: Portales laborales y informes CESSI")
+
 with tabs[1]:
-    fig = px.bar(
-        datos['profesiones'],
-        x='Porcentaje_demandado', y='Profesion', orientation='h',
-        labels={'Porcentaje_demandado':'Demanda (%)'},
-        color='Porcentaje_demandado',
-        color_continuous_scale=BLUE_SCALE
-    )
-    st.plotly_chart(fig, use_container_width=True, height=300)
+    mostrar_profesiones()
 
-# ─── 3) Oferta vs Demanda Educativa ──────────────────────────────────
-with tabs[2]:
+# 3) Oferta vs Demanda Educativa
+def mostrar_oferta_vs_demanda():
     df = datos['oferta_vs_demanda'].melt(
         id_vars='Especialidad',
-        value_vars=['Egresados_anuales','Puestos_demandados'],
+        value_vars=['Egresados_anuales', 'Puestos_demandados'],
         var_name='Tipo', value_name='Cantidad'
     )
     fig = px.bar(
         df, x='Especialidad', y='Cantidad', color='Tipo', barmode='group',
-        color_discrete_sequence=BLUE_SCALE,
-        labels={'Cantidad':'Personas'}
+        color_discrete_sequence=BLUE_SCALE, labels={'Cantidad': 'Personas'}
     )
-    st.plotly_chart(fig, use_container_width=True, height=300)
+    st.plotly_chart(fig, use_container_width=True, height=420)
+    st.caption("Fuente: Ministerio de Educación e INDEC")
 
-# ─── 4) Diversidad ────────────────────────────────────────────────────
-with tabs[3]:
-    sub = st.tabs(["Género","Edad","Educación"])
-    with sub[0]:
+with tabs[2]:
+    mostrar_oferta_vs_demanda()
+
+# 4) Diversidad
+def mostrar_diversidad():
+    sub_tabs = st.tabs(["Género", "Edad", "Educación"])
+    with sub_tabs[0]:
         df_g = datos['genero'].melt(id_vars='Categoria', var_name='Tipo', value_name='Porcentaje')
         fig = px.bar(df_g, x='Categoria', y='Porcentaje', color='Tipo', barmode='group', color_discrete_sequence=BLUE_SCALE)
-        st.plotly_chart(fig, use_container_width=True, height=300)
-    with sub[1]:
-        fig = px.bar(datos['edad'], x='Rol', y='Edad_promedio', labels={'Edad_promedio':'Edad (años)'}, color_discrete_sequence=BLUE_SCALE)
-        st.plotly_chart(fig, use_container_width=True, height=300)
-    with sub[2]:
+        st.plotly_chart(fig, use_container_width=True, height=420)
+        st.caption("Fuente: Chicas en Tecnología y CESSI")
+    with sub_tabs[1]:
+        fig = px.bar(datos['edad'], x='Rol', y='Edad_promedio', labels={'Edad_promedio': 'Edad (años)'}, color_discrete_sequence=BLUE_SCALE)
+        st.plotly_chart(fig, use_container_width=True, height=420)
+        st.caption("Fuente: Observatorio del Trabajo Informático")
+    with sub_tabs[2]:
         fig = px.pie(datos['educacion'], names='Nivel_educativo', values='Porcentaje', color_discrete_sequence=BLUE_SCALE, hole=0.3)
-        st.plotly_chart(fig, use_container_width=True, height=300)
+        st.plotly_chart(fig, use_container_width=True, height=420)
+        st.caption("Fuente: Ministerio de Educación")
 
-# ─── 5) Impacto de la IA ──────────────────────────────────────────────
-with tabs[4]:
+with tabs[3]:
+    mostrar_diversidad()
+
+# 5) Impacto de la IA
+def mostrar_ia():
     fig = px.scatter(
         datos['ia'], x='Exposicion_IA', y='Complementariedad_IA', size='Riesgo_desplazamiento',
-        color='Rol_tecnologico', size_max=40, color_discrete_sequence=BLUE_SCALE,
-        labels={'Exposicion_IA':'Exposición IA','Complementariedad_IA':'Complementariedad IA'}
+        color='Rol_tecnologico', size_max=50, color_discrete_sequence=BLUE_SCALE,
+        labels={'Exposicion_IA': 'Exposición a IA', 'Complementariedad_IA': 'Complementariedad con IA'}
     )
-    st.plotly_chart(fig, use_container_width=True, height=300)
-    st.markdown("""
-    **Interpretación rápida:**
-    - 🟥 Alta exposición + baja complementariedad = mayor riesgo.
-    - 🟩 Alta complementariedad = oportunidad.
-    """)
+    st.plotly_chart(fig, use_container_width=True, height=420)
+    st.caption("Fuente: Ministerio de Trabajo y BID")
 
-# ─── Footer ──────────────────────────────────────────────────────────
+with tabs[4]:
+    mostrar_ia()
+
+# Footer general
 st.markdown("---")
-st.caption("Civic Twin™ © 2025 · Datos: Ministerio de Trabajo, Educación, INDEC, CESSI, Observatorios.")
+st.caption("Civic Twin™ © 2025")
