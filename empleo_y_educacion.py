@@ -2,24 +2,18 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# Configuración general del tablero
-st.set_page_config(page_title='Civic Twin: Empleo y Educación', layout='wide')
+# Configuración general sin scroll largo
+st.set_page_config(
+    page_title='Civic Twin: Empleo y Educación',
+    layout='wide',
+    initial_sidebar_state='collapsed'
+)
 st.title("📊 Civic Twin: Empleo, Educación y Futuro del Trabajo Tecnológico")
 
-# Paleta de color azul uniforme para todo
-color_scale = 'Blues'
+# Paleta azul única
+BLUE_SCALE = px.colors.sequential.Blues
 
-# Botonera de navegación
-secciones = [
-    "📍 Empleo por Provincia",
-    "💼 Profesiones más Demandadas",
-    "📚 Oferta vs Demanda Educativa",
-    "👥 Diversidad e Inclusión",
-    "🤖 Impacto de la IA"
-]
-opcion = st.radio("Seleccioná una sección:", secciones, horizontal=True)
-
-# Cargar todos los datos una sola vez
+# Carga de datos (una sola vez)
 @st.cache_data
 def cargar_datos():
     return {
@@ -34,20 +28,29 @@ def cargar_datos():
 
 datos = cargar_datos()
 
-# Sección 1: Empleo por Provincia
-if opcion == secciones[0]:
+# Defino pestañas principales
+tabs = st.tabs([
+    "📍 Empleo por Provincia",
+    "💼 Profesiones Demandadas",
+    "📚 Oferta vs Demanda",
+    "👥 Diversidad",
+    "🤖 Impacto IA"
+])
+
+# 1) Empleo por Provincia
+with tabs[0]:
     fig = px.bar(
         datos['empleo'],
         x='Provincia',
         y='Empleos_tecnologicos',
-        labels={'Empleos_tecnologicos': 'Porcentaje de Empleos (%)'},
+        labels={'Empleos_tecnologicos': 'Empleos (%)'},
         color='Empleos_tecnologicos',
-        color_continuous_scale=color_scale
+        color_continuous_scale=BLUE_SCALE
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, height=450)
 
-# Sección 2: Profesiones más Demandadas
-elif opcion == secciones[1]:
+# 2) Profesiones más Demandadas
+with tabs[1]:
     fig = px.bar(
         datos['profesiones'],
         x='Porcentaje_demandado',
@@ -55,12 +58,12 @@ elif opcion == secciones[1]:
         orientation='h',
         labels={'Porcentaje_demandado': 'Demanda (%)'},
         color='Porcentaje_demandado',
-        color_continuous_scale=color_scale
+        color_continuous_scale=BLUE_SCALE
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, height=450)
 
-# Sección 3: Oferta vs Demanda Educativa
-elif opcion == secciones[2]:
+# 3) Oferta vs Demanda Educativa
+with tabs[2]:
     df = datos['oferta_vs_demanda'].melt(
         id_vars='Especialidad',
         value_vars=['Egresados_anuales', 'Puestos_demandados'],
@@ -73,55 +76,71 @@ elif opcion == secciones[2]:
         y='Cantidad',
         color='Tipo',
         barmode='group',
-        color_discrete_sequence=px.colors.sequential.Blues,
-        labels={'Cantidad': 'Cantidad de personas'}
+        color_discrete_sequence=BLUE_SCALE,
+        labels={'Cantidad': 'Personas'}
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, height=450)
 
-# Sección 4: Diversidad e Inclusión
-elif opcion == secciones[3]:
-    col1, col2 = st.columns(2)
+# 4) Diversidad (pestañas internas)
+with tabs[3]:
+    sub_tabs = st.tabs(["Género", "Edad", "Educación"])
+    # Género
+    with sub_tabs[0]:
+        df_g = datos['genero'].melt(
+            id_vars='Categoria', var_name='Tipo', value_name='Porcentaje'
+        )
+        fig = px.bar(
+            df_g,
+            x='Categoria',
+            y='Porcentaje',
+            color='Tipo',
+            barmode='group',
+            color_discrete_sequence=BLUE_SCALE
+        )
+        st.plotly_chart(fig, use_container_width=True, height=450)
+    # Edad
+    with sub_tabs[1]:
+        fig = px.bar(
+            datos['edad'],
+            x='Rol',
+            y='Edad_promedio',
+            labels={'Edad_promedio': 'Edad (años)'},
+            color_discrete_sequence=BLUE_SCALE
+        )
+        st.plotly_chart(fig, use_container_width=True, height=450)
+    # Educación
+    with sub_tabs[2]:
+        fig = px.pie(
+            datos['educacion'],
+            names='Nivel_educativo',
+            values='Porcentaje',
+            color_discrete_sequence=BLUE_SCALE,
+            hole=0.3
+        )
+        st.plotly_chart(fig, use_container_width=True, height=450)
 
-    with col1:
-        df = datos['genero'].melt(id_vars='Categoria', var_name='Tipo', value_name='Porcentaje')
-        fig = px.bar(df, x='Categoria', y='Porcentaje', color='Tipo', barmode='group',
-                     color_discrete_sequence=px.colors.sequential.Blues)
-        st.plotly_chart(fig, use_container_width=True)
-
-    with col2:
-        fig = px.bar(datos['edad'], x='Rol', y='Edad_promedio',
-                     color_discrete_sequence=px.colors.sequential.Blues,
-                     labels={'Edad_promedio': 'Edad promedio (años)'})
-        st.plotly_chart(fig, use_container_width=True)
-
-    fig = px.pie(datos['educacion'], names='Nivel_educativo', values='Porcentaje',
-                 color_discrete_sequence=px.colors.sequential.Blues)
-    st.plotly_chart(fig, use_container_width=True)
-
-# Sección 5: Impacto de la IA
-elif opcion == secciones[4]:
+# 5) Impacto de la IA
+with tabs[4]:
     fig = px.scatter(
         datos['ia'],
         x='Exposicion_IA',
         y='Complementariedad_IA',
         size='Riesgo_desplazamiento',
         color='Rol_tecnologico',
-        size_max=60,
-        color_discrete_sequence=px.colors.sequential.Blues,
+        size_max=50,
+        color_discrete_sequence=BLUE_SCALE,
         labels={
-            'Exposicion_IA': 'Exposición a la IA',
+            'Exposicion_IA': 'Exposición a IA',
             'Complementariedad_IA': 'Complementariedad con IA'
         }
     )
-    st.plotly_chart(fig, use_container_width=True)
-
+    st.plotly_chart(fig, use_container_width=True, height=450)
     st.markdown("""
-    **📌 Interpretación del gráfico:**
-
-    - 🟥 Alta exposición y poca complementariedad → riesgo de desplazamiento.
-    - 🟩 Alta complementariedad → oportunidad de adaptación con IA.
+    **Interpretación rápida:**
+    - 🟥 Alta exposición + baja complementariedad = mayor riesgo.
+    - 🟩 Alta complementariedad = gran oportunidad de colaboración con IA.
     """)
 
 # Footer
 st.markdown("---")
-st.caption("Civic Twin © 2025 · Datos: Ministerio de Trabajo, Educación, INDEC, CESSI y otros.")
+st.caption("Civic Twin © 2025 · Datos: Ministerio de Trabajo, Educación, INDEC, CESSI, Observatorios.")
