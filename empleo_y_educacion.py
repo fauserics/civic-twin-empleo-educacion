@@ -82,12 +82,12 @@ datos = cargar_datos()
 tabs = st.tabs(["Empleo por Provincia","Profesiones Demandadas","Oferta vs Demanda","Diversidad","Impacto IA"])
 
 # Empleo por Provincia\with tabs[0]:
-    fig = px.bar(
+fig = px.bar(
         datos['empleo'], x='Provincia', y='Empleos_tecnologicos',
         labels={'Empleos_tecnologicos':'Empleos (%)'},
         color='Empleos_tecnologicos', color_continuous_scale='Blues'
     )
-    st.plotly_chart(fig, use_container_width=True, height=400)
+st.plotly_chart(fig, use_container_width=True, height=400)
 
 # Profesiones Demandadas
 with tabs[1]:
